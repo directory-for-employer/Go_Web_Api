@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"go/web-api/configs"
+	"go/web-api/pkg/req"
 	"go/web-api/pkg/res"
 	"net/http"
 )
@@ -23,8 +24,12 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 }
 
 func (handler *AuthHandler) Login() http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Println("Login")
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := req.HandleBody[LoginRequest](&w, r)
+		if err != nil {
+			return
+		}
+		fmt.Println("body", body)
 		data := LoginResponse{
 			Token: handler.Auth.Secret,
 		}
@@ -33,8 +38,15 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 }
 
 func (handler *AuthHandler) Registration() http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Println(handler.Config.Auth.Secret)
-		fmt.Println("Registration")
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := req.HandleBody[RegisterRequest](&w, r)
+		if err != nil {
+			return
+		}
+		fmt.Println("body", body)
+		data := RegisterResponse{
+			Token: handler.Auth.Secret,
+		}
+		res.Json(w, data, http.StatusOK)
 	}
 }
