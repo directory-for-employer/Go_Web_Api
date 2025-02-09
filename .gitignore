@@ -10,11 +10,10 @@
 
 *.out
 
+
 /postgres-data
+.env
 
 
 go.work
 go.work.sum
-
-# env file
-.env
