@@ -6,6 +6,7 @@ import (
 	"go/web-api/internal/auth"
 	"go/web-api/internal/link"
 	"go/web-api/pkg/db"
+	"go/web-api/pkg/middleware"
 	"net/http"
 )
 
@@ -28,7 +29,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: router,
+		Handler: middleware.Logging(router),
 	}
 
 	fmt.Println("server is lisen on port 8081")

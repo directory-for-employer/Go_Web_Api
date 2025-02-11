@@ -76,7 +76,7 @@ func (handler *LinkHandler) Delete() http.HandlerFunc {
 		if err != nil {
 			res.Json(w, err.Error(), http.StatusNotFound)
 		}
-		err := handler.LinkRepository.Delete(uint(id))
+		err = handler.LinkRepository.Delete(uint(id))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
