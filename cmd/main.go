@@ -18,6 +18,12 @@ func main() {
 	// Repositories
 	linkRepository := link.NewLinkRepository(database)
 
+	//Middlewares
+	stack := middleware.Chain(
+		middleware.CORS,
+		middleware.Logging,
+	)
+
 	// Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config: conf,
@@ -29,7 +35,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: middleware.Logging(router),
+		Handler: stack(router),
 	}
 
 	fmt.Println("server is lisen on port 8081")
