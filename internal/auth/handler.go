@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"fmt"
 	"go/web-api/configs"
 	"go/web-api/internal/user"
+	"go/web-api/pkg/jwt"
 	"go/web-api/pkg/req"
 	"go/web-api/pkg/res"
 	"net/http"
@@ -33,12 +33,20 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		login, err := handler.AuthService.Login(body.Email, body.Password)
+		_, err = handler.AuthService.Login(body.Email, body.Password)
 		if err != nil {
 			res.Json(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		fmt.Println(login)
+		token, err := jwt.NewJwt(handler.Config.Auth.Secret).Create(body.Email)
+		if err != nil {
+			res.Json(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		data := LoginResponse{
+			Token: token,
+		}
+		res.Json(w, data, http.StatusOK)
 	}
 }
 
@@ -58,5 +66,14 @@ func (handler *AuthHandler) Registration() http.HandlerFunc {
 			res.Json(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		token, err := jwt.NewJwt(handler.Config.Auth.Secret).Create(body.Email)
+		if err != nil {
+			res.Json(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		data := RegisterResponse{
+			Token: token,
+		}
+		res.Json(w, data, http.StatusOK)
 	}
 }
