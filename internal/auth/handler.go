@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"go/web-api/configs"
+	"go/web-api/internal/user"
 	"go/web-api/pkg/req"
 	"go/web-api/pkg/res"
 	"net/http"
@@ -10,14 +11,17 @@ import (
 
 type AuthHandlerDeps struct {
 	*configs.Config
+	*AuthService
 }
 type AuthHandler struct {
 	*configs.Config
+	*AuthService
 }
 
 func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 	handler := &AuthHandler{
-		Config: deps.Config,
+		Config:      deps.Config,
+		AuthService: deps.AuthService,
 	}
 	router.HandleFunc("POST /auth/login", handler.Login())
 	router.HandleFunc("POST /auth/reg", handler.Registration())
@@ -29,11 +33,12 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		fmt.Println("body", body)
-		data := LoginResponse{
-			Token: handler.Auth.Secret,
+		login, err := handler.AuthService.Login(body.Email, body.Password)
+		if err != nil {
+			res.Json(w, err.Error(), http.StatusUnauthorized)
+			return
 		}
-		res.Json(w, data, http.StatusOK)
+		fmt.Println(login)
 	}
 }
 
@@ -43,10 +48,15 @@ func (handler *AuthHandler) Registration() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		fmt.Println("body", body)
-		data := RegisterResponse{
-			Token: handler.Auth.Secret,
+		userData := &user.User{
+			Email:    body.Email,
+			Name:     body.Name,
+			Password: body.Password,
 		}
-		res.Json(w, data, http.StatusOK)
+		_, err = handler.AuthService.Register(userData)
+		if err != nil {
+			res.Json(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 }
