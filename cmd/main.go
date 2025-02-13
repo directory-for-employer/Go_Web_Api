@@ -5,8 +5,10 @@ import (
 	"go/web-api/configs"
 	"go/web-api/internal/auth"
 	"go/web-api/internal/link"
+	"go/web-api/internal/stat"
 	"go/web-api/internal/user"
 	"go/web-api/pkg/db"
+	"go/web-api/pkg/event"
 	"go/web-api/pkg/middleware"
 	"net/http"
 )
@@ -15,13 +17,21 @@ func main() {
 	conf := configs.LoadConfig()
 	database := db.NewDb(conf)
 	router := http.NewServeMux()
+	eventBus := event.NewEventBus()
 
 	// Repositories
 	linkRepository := link.NewLinkRepository(database)
 	userRepository := user.NewUserRepository(database)
+	statRepository := stat.NewStatRepository(database)
 
 	// Service
 	authService := auth.NewAuthService(userRepository)
+	statService := stat.NewStatService(&stat.StatServiceDeps{
+		EventBus:       eventBus,
+		StatRepository: statRepository,
+	})
+
+	go statService.AddClick()
 
 	//Middlewares
 	stack := middleware.Chain(
@@ -41,6 +51,7 @@ func main() {
 
 	link.NewLinkHandler(router, link.LinkHandlerDeps{
 		LinkRepository: linkRepository,
+		EventBus:       eventBus,
 		Config:         conf,
 	})
 

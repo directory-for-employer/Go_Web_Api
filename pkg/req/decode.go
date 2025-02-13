@@ -24,3 +24,11 @@ func DecodeParam(r *http.Request) (uint64, error) {
 	}
 	return id, nil
 }
+
+func DecodeIntQuery(r *http.Request, titleQuery string) (*int, error) {
+	query, err := strconv.Atoi(r.URL.Query().Get(titleQuery))
+	if err != nil {
+		return nil, err
+	}
+	return &query, nil
+}
