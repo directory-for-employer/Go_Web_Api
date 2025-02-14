@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func Decode[T any](body io.ReadCloser) (T, error) {
@@ -27,6 +28,20 @@ func DecodeParam(r *http.Request) (uint64, error) {
 
 func DecodeIntQuery(r *http.Request, titleQuery string) (*int, error) {
 	query, err := strconv.Atoi(r.URL.Query().Get(titleQuery))
+	if err != nil {
+		return nil, err
+	}
+	return &query, nil
+}
+
+func DecodeStringQuery(r *http.Request, titleQuery string) *string {
+	query := r.URL.Query().Get(titleQuery)
+	return &query
+}
+
+func DecodeTimeQuery(r *http.Request, titleQuery string) (*time.Time, error) {
+	layout := "2006-01-02 15:04:05"
+	query, err := time.Parse(layout, r.URL.Query().Get(titleQuery))
 	if err != nil {
 		return nil, err
 	}
