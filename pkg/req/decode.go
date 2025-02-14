@@ -40,7 +40,7 @@ func DecodeStringQuery(r *http.Request, titleQuery string) *string {
 }
 
 func DecodeTimeQuery(r *http.Request, titleQuery string) (*time.Time, error) {
-	layout := "2006-01-02 15:04:05"
+	layout := "01-02-2006" // 15:04:05
 	query, err := time.Parse(layout, r.URL.Query().Get(titleQuery))
 	if err != nil {
 		return nil, err

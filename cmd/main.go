@@ -55,7 +55,10 @@ func main() {
 		Config:         conf,
 	})
 
-	stat.NewStatHandler(router, &stat.StatHandlerDeps{})
+	stat.NewStatHandler(router, &stat.StatHandlerDeps{
+		StatRepository: statRepository,
+		Config:         conf,
+	})
 
 	server := http.Server{
 		Addr:    ":8081",
