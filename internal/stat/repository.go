@@ -3,6 +3,7 @@ package stat
 import (
 	"go/web-api/pkg/db"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -42,11 +43,17 @@ func (repo *StatRepository) GetStat(by string, from, to time.Time) []GetStatResp
 	case GroupByMonth:
 		selectQuery = "to_char(date, 'YYYY-MM') as period, sum(clicks)"
 	}
-	repo.Db.Table("stats").
+	query := repo.Db.Table("stat").
 		Select(selectQuery).
+		Session(&gorm.Session{})
+	//if true {
+	//	query.Where("count >10")
+	//}
+
+	query.
 		Where("date BETWEEN ? AND ?", from, to).
 		Group("period").
-		Order("period").
+		Order("period ").
 		Scan(&stat)
 
 	return stat
