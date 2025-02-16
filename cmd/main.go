@@ -13,7 +13,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func App() http.Handler {
 	conf := configs.LoadConfig()
 	database := db.NewDb(conf)
 	router := http.NewServeMux()
@@ -31,6 +31,7 @@ func main() {
 		StatRepository: statRepository,
 	})
 
+	// take statistic
 	go statService.AddClick()
 
 	//Middlewares
@@ -60,9 +61,14 @@ func main() {
 		Config:         conf,
 	})
 
+	return stack(router)
+}
+
+func main() {
+	app := App()
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: stack(router),
+		Handler: app,
 	}
 
 	fmt.Println("server is lisen on port 8081")

@@ -12,6 +12,7 @@
 
 
 /postgres-data
+/cmd/.env
 .env
 
 
